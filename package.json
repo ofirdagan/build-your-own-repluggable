@@ -1,0 +1,24 @@
+{
+  "name": "@ofirdagan/repluggable",
+  "version": "1.0.0",
+  "description": "a lighter version of repluggable built step by step",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node test-app/src/app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ofirdagan/repluggable.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ofirdagan/repluggable/issues"
+  },
+  "homepage": "https://github.com/ofirdagan/repluggable#readme",
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.4"
+  }
+}
