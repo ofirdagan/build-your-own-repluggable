@@ -8,3 +8,11 @@
 
 * Host interface
 * addShells implementation
+
+## Step 3
+
+* getDependencyAPIs
+* declareAPIs
+* contributeApi
+* getApi
+* extend

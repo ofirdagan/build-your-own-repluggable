@@ -1,18 +1,16 @@
-import { EntryPoint, createAppHost } from "../../src/repluggable";
+import { createAppHost } from '../../src/repluggable';
+// import { createAppHost } from 'repluggable';
+import {Foo} from './foo';
+import {Lazy} from './lazy';
 
-const Foo: EntryPoint = {
-    name: 'Foo',
-    attach() {
-        console.log('foo is attached');
-    }
-}
+//This is for testing w/ the real repluggable module
+// declare global {
+//     var window: any
+// }
 
-const Lazy: EntryPoint = {
-    name: "Lazy",
-    attach() {
-        console.log('lazy is attached');
-    }
-}
+// global.window = {
+//     requestAnimationFrame: () => {}
+// }
 
 const host = createAppHost([Foo]);
 setTimeout(() => host.addShells([Lazy]), 1000);
