@@ -5,16 +5,31 @@ export interface EntryPoint {
     attach(): void
 }
 
-const attchedEntryPoints: Set<string> = new Set();
+export interface Host {
+    addShells(entryPoints: EntryPoint[]): void
+}
 
-export const createAppHost = (entryPoints: EntryPoint[]) => {
-    entryPoints.forEach(entryPoint => {
-        const isAttached = attchedEntryPoints.has(entryPoint.name);
+class HostImp implements Host {
+    private attachedEntryPoints: Set<string> = new Set();
+    
+    public addShells = (entryPoints: EntryPoint[]) => {
+        entryPoints.forEach(this.attach);
+    }
+
+    private attach = (entryPoint: EntryPoint) => {
+        const isAttached = this.attachedEntryPoints.has(entryPoint.name);
         if (!isAttached) {
             entryPoint.attach();
-            attchedEntryPoints.add(entryPoint.name);
+            this.attachedEntryPoints.add(entryPoint.name);
         } else {
             throw new Error(`entry point w/ name ${entryPoint.name} is already attahced`);
         }
-    });
+    }
+}
+
+
+export const createAppHost = (entryPoints: EntryPoint[]): Host => {
+    const host: Host = new HostImp();
+    host.addShells(entryPoints);
+    return host;
 };
