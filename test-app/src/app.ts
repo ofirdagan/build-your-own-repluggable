@@ -7,4 +7,12 @@ const Foo: EntryPoint = {
     }
 }
 
-createAppHost([Foo]);
+createAppHost([Foo, Foo]);
+
+// declare global {
+//     var window: any
+// }
+
+// global.window = {
+//     requestAnimationFrame: () => {}
+// }
