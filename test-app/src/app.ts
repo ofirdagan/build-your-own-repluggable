@@ -7,4 +7,4 @@ const Foo: EntryPoint = {
     }
 }
 
-createAppHost([Foo]);
+createAppHost([Foo, Foo]);
