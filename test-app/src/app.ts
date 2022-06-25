@@ -7,12 +7,12 @@ const Foo: EntryPoint = {
     }
 }
 
-createAppHost([Foo, Foo]);
+const Lazy: EntryPoint = {
+    name: "Lazy",
+    attach() {
+        console.log('lazy is attached');
+    }
+}
 
-// declare global {
-//     var window: any
-// }
-
-// global.window = {
-//     requestAnimationFrame: () => {}
-// }
+const host = createAppHost([Foo]);
+setTimeout(() => host.addShells([Lazy]), 1000);
