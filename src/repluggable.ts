@@ -1,8 +1,12 @@
+import { configureStore, ReducersMapObject } from '@reduxjs/toolkit';
+import { AnyAction, combineReducers, Store} from 'redux';
 
 
 export interface Shell {
+    contributeState<T>(reducerMapObjectFactory: () => ReducersMapObject<T>): void;
     contributeAPI<T>(key: SlotKey<T>, apiFactory: () => T): void;
     getAPI<T>(key: SlotKey<T>): T;
+    getStore<T>(): Store
 }
 
 export interface SlotKey<T> {
@@ -21,6 +25,8 @@ export interface Host {
     addShells(entryPoints: EntryPoint[]): void;
     contributeAPI<T>(entryPoint: EntryPoint, key: SlotKey<T>, apiFactory: () => T): void;
     contributedApis: {[key: string]: ApiFactory<any>};
+    addReducerToStore<T>(reducer: () => ReducersMapObject<T>): void
+    getHostStore(): Store;
 }
 
 type ApiFactory<T> = () => T;
@@ -34,6 +40,10 @@ class ShellImpl implements Shell {
         this.host = host;
         this.entryPoint = entryPoint;
     }
+    getStore<T>(): Store {
+        return this.host.getHostStore();
+    }
+
     getAPI<T>(key: SlotKey<T>): T {
         if (!this.host.contributedApis[key.name]) {
             throw new Error(`${key.name} API does not exists on host`);
@@ -44,14 +54,49 @@ class ShellImpl implements Shell {
     contributeAPI<T>(key: SlotKey<T>, apiFactory: ApiFactory<T>): void {
         this.host.contributeAPI(this.entryPoint, key, apiFactory);
     }
+
+    contributeState<T>(reducerMapObjectFactory: () => ReducersMapObject<T>) {
+        this.host.addReducerToStore(reducerMapObjectFactory);
+    }
 }
 
-class HostImp implements Host {
+class HostImpl implements Host {
     
     private attachedEntryPoints: {[key: string]: Shell} = {};
     private unresolvedEntryPoints: EntryPoint[] = [];
     public contributedApis: {[key: string]: ApiFactory<any>} = {};
     private apiToEntryPoint: {[key: string]: EntryPoint} = {};
+    // --- begin step 4
+    private store: Store;
+    private asyncReducers: ReducersMapObject = {};
+
+    public constructor() {
+        this.store = configureStore({
+            reducer: this.createReducer()
+        });
+    }
+
+    public getHostStore(): Store<any, AnyAction> {
+        return this.store;
+    }
+
+    public addReducerToStore<T>(reducerFactory: () => ReducersMapObject<T>): void {
+        this.asyncReducers = {
+            ...this.asyncReducers,
+            ...reducerFactory()
+        }
+        this.store.replaceReducer(this.createReducer());
+    }
+
+    private createReducer = () => {
+        return combineReducers({
+            host: () => {
+                return {};
+            },
+            ...this.asyncReducers
+        })
+    }
+    // --- end step 4
     
     public addShells = (entryPoints: EntryPoint[]) => {
         entryPoints.forEach(entryPoint => {
@@ -76,7 +121,7 @@ class HostImp implements Host {
         this.tryToAttachUnresolvedEntryPoints();
     }
 
-    registeredDeclaredApis(entryPoint: EntryPoint) {
+    private registeredDeclaredApis(entryPoint: EntryPoint) {
         entryPoint.declareAPIs?.().forEach(api => {
             if (this.apiToEntryPoint[api.name]) {
                 throw new Error(`API ${api.name} already declared by entry point ${this.apiToEntryPoint[api.name].name}`);
@@ -129,7 +174,7 @@ class HostImp implements Host {
 
 
 export const createAppHost = (entryPoints: EntryPoint[]): Host => {
-    const host: Host = new HostImp();
+    const host: Host = new HostImpl();
     host.addShells(entryPoints);
     return host;
 };
