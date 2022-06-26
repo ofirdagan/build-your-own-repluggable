@@ -4,7 +4,12 @@
   "description": "a lighter version of repluggable built step by step",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node test-app/src/app.ts"
+    "start": "ts-node test-app/src/app.ts",
+    "build": "webpack --mode=production --node-env=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch",
+    "serve": "webpack serve"
   },
   "repository": {
     "type": "git",
@@ -18,8 +23,13 @@
   "homepage": "https://github.com/ofirdagan/repluggable#readme",
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
+    "@webpack-cli/generators": "^2.5.0",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.6.1",
+    "ts-loader": "^9.3.1",
     "ts-node": "^10.8.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "webpack-dev-server": "^4.9.2"
   },
   "dependencies": {
     "repluggable": "^1.302.12"

@@ -1,5 +1,5 @@
-// import {SlotKey, EntryPoint, Shell} from 'repluggable';
-import {SlotKey, EntryPoint, Shell} from '../../src/repluggable';
+import {SlotKey, EntryPoint, Shell} from 'repluggable';
+// import {SlotKey, EntryPoint, Shell} from '../../repluggable';
 import {FooApi} from './foo';
 
 

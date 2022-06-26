@@ -11,6 +11,8 @@
 
 ## Step 3
 
+* Precondition - setup webpack `npx webpack-cli init`
+
 * getDependencyAPIs
 * declareAPIs
 * contributeApi
