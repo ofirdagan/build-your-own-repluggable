@@ -18,3 +18,8 @@
 * contributeApi
 * getApi
 * extend
+
+## Step 4
+
+* contributeState
+* getStore

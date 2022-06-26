@@ -1,5 +1,6 @@
 import { createAppHost } from '../repluggable';
 // import { createAppHost } from 'repluggable';
+import { CountersApi, countersReducer, createCountersApi, FullCountersState } from './counter-test-util';
 import { createEntryPoint, createLazyApi,
     createSomeApi, LazyApi, 
     Some2Api, SomeApi, testLogsByOrder } from './test-utils';
@@ -72,6 +73,40 @@ import { createEntryPoint, createLazyApi,
             }).toThrowError(new Error('Entry point entryA tried to contribue SomeApi w/o declaring it'));
             
         })
+    });
+
+    describe('step 4', () => {
+        it('should contribute state and use it', async () => {
+            const entryWithState = createEntryPoint({
+                name: 'entryWithState',
+                declareApi: [CountersApi],
+                onAttach: shell => {
+                    shell.contributeState<FullCountersState>(() => ({counters: countersReducer}));
+                    shell.contributeAPI(CountersApi, () => createCountersApi(shell));
+                }
+            }); 
+
+            let runExtendFlag = false;
+            const entryThatUseState = createEntryPoint({
+                name: 'entryThatUseState',
+                depApi: [CountersApi],
+                onExtend: shell => {
+                    let counter1 = shell.getAPI(CountersApi).getCounter1();
+                
+                    expect(counter1).toBe(0);
+
+                    shell.getAPI(CountersApi).incCounter1();
+                    counter1 = shell.getAPI(CountersApi).getCounter1();
+
+                    expect(counter1).toBe(1);
+                    runExtendFlag = true;
+                }
+            });
+
+            createAppHost([entryThatUseState, entryWithState]);
+
+            expect(runExtendFlag).toBe(true);
+        });
     });
     
     
