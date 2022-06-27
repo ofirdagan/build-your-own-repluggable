@@ -12,7 +12,8 @@ const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : 'style-loader
 
 
 const config = {
-    entry: './src/test-app/src/app.ts',
+    entry: './src/test/example-app/app.tsx',
+    devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'dist'),
     },

@@ -23,3 +23,8 @@
 
 * contributeState
 * getStore
+
+## Step 5
+
+* react
+* contributeMainView

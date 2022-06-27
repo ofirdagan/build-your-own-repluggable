@@ -4,8 +4,9 @@
     "moduleResolution": "Node",
     "noImplicitAny": true,
     "module": "es6",
-    "target": "es5",
-    "allowJs": false
+    "target": "esnext",
+    "allowJs": false,
+    "jsx": "react"
   },
-  "files": ["src/index.ts"]
+  "files": ["src/test/example-app/app.tsx"]
 }

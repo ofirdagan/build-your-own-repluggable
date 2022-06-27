@@ -5,7 +5,7 @@ import { createEntryPoint, createLazyApi,
     createSomeApi, LazyApi, 
     Some2Api, SomeApi, testLogsByOrder } from './test-utils';
     
-    describe('step 3', () => {
+    describe('step 3 - APIs support', () => {
         it('should load entry point after depencency api is contributed', async () => {
             const consoleSpy = jest.spyOn(console, 'log');
             const dependOnLazy = entryPointThatDependsOnLazy();
@@ -75,7 +75,7 @@ import { createEntryPoint, createLazyApi,
         })
     });
 
-    describe('step 4', () => {
+    describe('step 4 - state & redux', () => {
         it('should contribute state and use it', async () => {
             const entryWithState = createEntryPoint({
                 name: 'entryWithState',
