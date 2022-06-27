@@ -1,12 +1,19 @@
 import { configureStore, ReducersMapObject } from '@reduxjs/toolkit';
+import React from 'react';
+import { connect, ReactReduxContextValue } from 'react-redux';
 import { AnyAction, combineReducers, Store} from 'redux';
+import { AddView, hostReducer } from './host-reducer';
+import { AppMainView as mainView } from './AppMainView';
 
+export const AppMainView = mainView;
 
 export interface Shell {
     contributeState<T>(reducerMapObjectFactory: () => ReducersMapObject<T>): void;
     contributeAPI<T>(key: SlotKey<T>, apiFactory: () => T): void;
     getAPI<T>(key: SlotKey<T>): T;
-    getStore<T>(): Store
+    getStore<T>(): Store;
+    getContext(): React.Context<ReactReduxContextValue>;
+    contributeMainView(shell: Shell, view: () => React.ReactNode): void;
 }
 
 export interface SlotKey<T> {
@@ -26,7 +33,8 @@ export interface Host {
     contributeAPI<T>(entryPoint: EntryPoint, key: SlotKey<T>, apiFactory: () => T): void;
     contributedApis: {[key: string]: ApiFactory<any>};
     addReducerToStore<T>(reducer: () => ReducersMapObject<T>): void
-    getHostStore(): Store;
+    getHostStore<T>(): Store<T>;
+    getContext(): React.Context<ReactReduxContextValue>
 }
 
 type ApiFactory<T> = () => T;
@@ -58,6 +66,14 @@ class ShellImpl implements Shell {
     contributeState<T>(reducerMapObjectFactory: () => ReducersMapObject<T>) {
         this.host.addReducerToStore(reducerMapObjectFactory);
     }
+
+    getContext(): React.Context<ReactReduxContextValue> {
+        return this.host.getContext();
+    }
+
+    contributeMainView(shell: Shell, view: () => React.ReactNode) {
+        this.getStore().dispatch(AddView(shell, view));
+    }
 }
 
 class HostImpl implements Host {
@@ -66,14 +82,18 @@ class HostImpl implements Host {
     private unresolvedEntryPoints: EntryPoint[] = [];
     public contributedApis: {[key: string]: ApiFactory<any>} = {};
     private apiToEntryPoint: {[key: string]: EntryPoint} = {};
-    // --- begin step 4
     private store: Store;
     private asyncReducers: ReducersMapObject = {};
+    private context: React.Context<ReactReduxContextValue>
 
     public constructor() {
         this.store = configureStore({
             reducer: this.createReducer()
         });
+        this.context = React.createContext<ReactReduxContextValue>({} as ReactReduxContextValue<any, AnyAction>);
+    }
+    getContext(): React.Context<ReactReduxContextValue> {
+        return this.context
     }
 
     public getHostStore(): Store<any, AnyAction> {
@@ -90,13 +110,10 @@ class HostImpl implements Host {
 
     private createReducer = () => {
         return combineReducers({
-            host: () => {
-                return {};
-            },
+            host: hostReducer,
             ...this.asyncReducers
         })
     }
-    // --- end step 4
     
     public addShells = (entryPoints: EntryPoint[]) => {
         entryPoints.forEach(entryPoint => {
@@ -172,6 +189,9 @@ class HostImpl implements Host {
     }
 }
 
+export const connectWithShell = (mapStateToProps: (shell: Shell) => any, mapDispatchToProps: (shell: Shell) => any, boundShell: Shell) => {
+    return connect(() => mapStateToProps(boundShell), () => mapDispatchToProps(boundShell), null, {context: boundShell.getContext()});
+}
 
 export const createAppHost = (entryPoints: EntryPoint[]): Host => {
     const host: Host = new HostImpl();
