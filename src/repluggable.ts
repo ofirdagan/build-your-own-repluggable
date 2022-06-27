@@ -1,5 +1,5 @@
 import { configureStore, ReducersMapObject } from '@reduxjs/toolkit';
-import React from 'react';
+import React, {createContext} from 'react';
 import { connect, ReactReduxContextValue } from 'react-redux';
 import { AnyAction, combineReducers, Store} from 'redux';
 import { AddView, hostReducer } from './host-reducer';
@@ -90,7 +90,7 @@ class HostImpl implements Host {
         this.store = configureStore({
             reducer: this.createReducer()
         });
-        this.context = React.createContext<ReactReduxContextValue>({} as ReactReduxContextValue<any, AnyAction>);
+        this.context = createContext<ReactReduxContextValue>({} as ReactReduxContextValue<any, AnyAction>);
     }
     getContext(): React.Context<ReactReduxContextValue> {
         return this.context
